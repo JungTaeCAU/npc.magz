@@ -4,187 +4,110 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Sparkles, RefreshCw } from "lucide-react";
 
-// 문항 데이터 (패션 심리학 기반)
+// 문항 데이터 (패션으로 까보는 본캐)
 const questions = [
   {
     id: 1,
-    category: "01. 일상의 통제력",
-    title: "오늘 외출 준비 중 옷을 고를 때, 당신의 평소 루틴은?",
+    category: "01. 스타일 정체성",
+    title: "평생 한 가지 스타일만 입어야 한다면?",
     options: [
-      {
-        type: "A",
-        text: "일기예보와 스케줄을 고려해 전날 밤 완벽하게 세팅해 둔다.",
-      },
-      {
-        type: "B",
-        text: "가장 편안한 나만의 '교복템' 라인업을 고민 없이 입는다.",
-      },
-      {
-        type: "C",
-        text: "그날 아침의 기분이나 유독 꽂히는 컬러에 따라 즉흥적으로 고른다.",
-      },
-      {
-        type: "D",
-        text: "수없이 입고 벗기를 반복하다, 결국 가장 무난한 옷을 고른다.",
-      },
+      { type: "A", text: "\"편한 게 GOAT\" → 스트릿 / 트레이닝 깔" },
+      { type: "B", text: "\"사람은 단정이 기본\" → 셔츠+수트 국밥코어" },
+      { type: "C", text: "\"꾸민 듯 안 꾸민 듯\" → 꾸안꾸 장인 모드" },
+      { type: "D", text: "\"남들이랑 겹치면 죽음\" → 빈티지 / 개성 MAX" },
     ],
   },
   {
     id: 2,
-    category: "02. 스트레스 대처",
-    title: "유난히 우울하고 스트레스 받은 날, 기분 전환을 위한 패션은?",
+    category: "02. 쇼핑 기준",
+    title: "쇼핑할 때 기준 뭐에요? 솔직히!",
     options: [
-      {
-        type: "A",
-        text: "쨍한 원색 컬러나 반짝이는 화려한 액세서리로 포인트 주기",
-      },
-      {
-        type: "B",
-        text: "시선을 차단하는 모자나 포근하게 몸을 감싸는 오버핏 소재 입기",
-      },
-      {
-        type: "C",
-        text: "긴장감과 자신감을 부여하는 각 잡힌 세련된 '파워 수트' 입기",
-      },
-      {
-        type: "D",
-        text: "옷을 입는 대신 무작정 쇼핑 앱 장바구니를 채우며 결제하기",
-      },
+      { type: "A", text: "핏이 인생이다 (거울 ON)" },
+      { type: "B", text: "소재=인생. 오래 입어야지" },
+      { type: "C", text: "가성비 or die" },
+      { type: "D", text: "브랜드 철학까지 먹고 삼" },
     ],
   },
   {
     id: 3,
-    category: "03. 사회적 페르소나",
-    title: "새로운 네트워킹 모임 첫날, 사람들에게 보여주고 싶은 내 이미지는?",
+    category: "03. 첫인상 포인트",
+    title: "남 처음 볼 때 어디부터 보세요?",
     options: [
-      {
-        type: "A",
-        text: "군더더기 없이 세련되고 지적인 신뢰감을 주는 사람",
-      },
-      {
-        type: "B",
-        text: "상냥하고 부드러운 인상으로 다가가기 편안하고 다정한 사람",
-      },
-      {
-        type: "C",
-        text: "남들 시선에 얽매이지 않는, 나만의 확고하고 독특한 개성을 가진 사람",
-      },
-      {
-        type: "D",
-        text: "격식보다 활기차고 에너지가 넘치는 쿨한 성격을 가진 사람",
-      },
+      { type: "A", text: "신발 (이 사람 감 있네)" },
+      { type: "B", text: "액세서리 (디테일)" },
+      { type: "C", text: "상의 핏 / 컬러 (깔끔력)" },
+      { type: "D", text: "가방 / 소품 (숨겨진 변태력(?))" },
     ],
   },
   {
     id: 4,
-    category: "04. 소비 패턴",
-    title: "조건 없는 보너스 50만 원이 생겼습니다. 당신의 지출 방식은?",
+    category: "04. 약속 전날 루틴",
+    title: "중요한 약속 전날 루틴",
     options: [
-      {
-        type: "A",
-        text: "돈을 보태서라도 누구나 알아보는 명품 핵심 아이템 하나 구매하기",
-      },
-      {
-        type: "B",
-        text: "합리적인 '듀프(대체품)' 브랜드를 사고 남은 돈은 여행 등 경험에 쓰기",
-      },
-      {
-        type: "C",
-        text: "유행 타지 않는 질 좋은 무채색 기본템을 여러 벌 구비해 활용하기",
-      },
-      {
-        type: "D",
-        text: "친환경 소재나 스토리가 명확한 빈티지를 찾아 가치 소비 실천하기",
-      },
+      { type: "A", text: "풀착장 리허설 (거의 광기)" },
+      { type: "B", text: "머릿속 코디 시뮬 돌림" },
+      { type: "C", text: "당일 감으로 간다 (컨디션 맞춰서)" },
+      { type: "D", text: "걍 필승템 꺼냄 (국밥조합)" },
     ],
   },
   {
     id: 5,
-    category: "05. 커리어 가치관",
-    title: "매일 출근해야 하는 새로운 조직, 당신이 바라는 이상적인 모습은?",
+    category: "05. 퍼스널 컬러",
+    title: "내 퍼스널 컬러는?",
     options: [
-      {
-        type: "A",
-        text: "복장 규정은 엄격하지만, 고용과 연봉이 평생 보장되는 안정적인 곳",
-      },
-      {
-        type: "B",
-        text: "복장 제약이 전혀 없고, 업무 내용이 내 적성에 완벽하게 맞는 곳",
-      },
-      {
-        type: "C",
-        text: "뭘 입든 서로 관심 없고, 퇴근 후 개인의 워라밸이 철저히 보장되는 곳",
-      },
-      {
-        type: "D",
-        text: "모두가 선망하는 멋진 사원증을 걸고, 장래에 큰 성취를 이룰 수 있는 곳",
-      },
+      { type: "A", text: "무채색 (신뢰감코어)" },
+      { type: "B", text: "따뜻한 색 (인간 햇살 모드)" },
+      { type: "C", text: "차가운 색 (지능캐 vibes)" },
+      { type: "D", text: "비비드 (나 여기 있다!!!!)" },
     ],
   },
   {
     id: 6,
-    category: "06. 자기 수용",
-    title: "옷을 입을 때 체형이나 외모의 콤플렉스를 대하는 당신의 태도는?",
+    category: "06. 옷장 위기 대처",
+    title: "옷 많은데 입을 거 없을 때",
     options: [
-      {
-        type: "A",
-        text: "단점을 완벽하게 커버하고 가릴 수 있는 세밀한 디자인을 찾는다.",
-      },
-      {
-        type: "B",
-        text: "가리기보다 내가 가진 장점을 화려하게 부각해 시선을 분산시킨다.",
-      },
-      {
-        type: "C",
-        text: "내 몸이 어떻든 남들 기준 신경 쓰지 않고 당당하게 내 스타일을 입는다.",
-      },
-      {
-        type: "D",
-        text: "소셜 미디어에서 유행하는 신개념 체형 보정 아이템을 트렌디하게 활용한다.",
-      },
+      { type: "A", text: "쇼핑 ON (현실도피)" },
+      { type: "B", text: "옷장 리셋 (미니멀 코어)" },
+      { type: "C", text: "조합 뇌지컬 풀가동" },
+      { type: "D", text: "걍 손 가는 거 입고 ㄱㄱ" },
     ],
   },
 ];
 
-// 결과 타입별 상세 정보
-const resultTypes = {
-  A: {
-    title: "완벽주의 철벽 셋업형",
-    subtitle: "PERFECTIONIST",
+// 결과 타입별 상세 정보 (점수 기반: 6~12 / 13~18 / 19~24)
+const resultTypes = [
+  {
+    range: [6, 12],
+    title: "원칙코어 인간 / 클래식 본캐",
+    subtitle: "CLASSIC CORE",
     description:
-      "상황을 통제하려는 욕구가 강하고 사회적 인정과 신뢰감을 중시합니다. 리스크를 회피하고 완벽하게 세팅된 안정감 속에서 본인의 능력을 100% 발휘하는 타입이군요!",
+      "유행? 필요 없음. 기준 확실하고 자기 방식 있음. 조용한데 쎔.",
     color: "#2C3E50",
-    traits: ["완벽주의", "계획성", "신뢰성", "품격"],
+    traits: ["원칙", "클래식", "신뢰감", "묵직함"],
   },
-  B: {
-    title: "실용주의 코지(Cozy)형",
-    subtitle: "MINIMALIST",
+  {
+    range: [13, 18],
+    title: "밸런스 미친 센스캐",
+    subtitle: "BALANCE GOAT",
     description:
-      "불필요한 인지적 과부하를 줄이고 효율성을 극대화하는 현명한 소비자! 타인과의 공감과 정서적 교감을 중시하며, 실질적인 가치와 편안함을 가장 중요하게 생각합니다.",
-    color: "#7F8C8D",
-    traits: ["실용성", "편안함", "지속가능성", "효율성"],
+      "상황 맞춰서 스타일 바뀜. 눈치 + 센스 둘 다 있음. 어디 가도 안 어색한 인간 GOAT.",
+    color: "#E67E22",
+    traits: ["센스", "밸런스", "적응력", "눈치"],
   },
-  C: {
-    title: "마이웨이 도파민 드레서",
-    subtitle: "CREATIVE",
+  {
+    range: [19, 24],
+    title: "개성에 미친 자유영혼",
+    subtitle: "FREE SPIRIT",
     description:
-      "남들의 시선보다는 나만의 오리지널리티와 자아실현이 가장 중요합니다! 높은 자존감과 자기애를 바탕으로 직관적이고 예술적인 에너지를 뿜어내는 자유로운 영혼입니다.",
+      "틀? 그런 거 없음. 걍 자기 하고 싶은 거 함. 같이 있으면 감 살아남.",
     color: "#E74C3C",
-    traits: ["창의성", "개성", "감성", "자유로움"],
+    traits: ["개성", "자유", "창의성", "에너지"],
   },
-  D: {
-    title: "트렌드-어댑터 야망캐",
-    subtitle: "TRENDSETTER",
-    description:
-      "외부의 유행과 솔루션을 적극적으로 수용하여 문제를 해결하는 얼리어답터! 커리어에서의 성취 욕구와 활동성이 높으며 힙한 트렌드를 누구보다 쿨하게 소화해냅니다.",
-    color: "#9B59B6",
-    traits: ["트렌드", "야망", "성취", "리더십"],
-  },
-};
+];
 
 export default function FashionSurvey() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [scores, setScores] = useState({ A: 0, B: 0, C: 0, D: 0 });
+  const [totalScore, setTotalScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showPrizeForm, setShowPrizeForm] = useState(false);
@@ -196,13 +119,11 @@ export default function FashionSurvey() {
 
   const handleSelect = (type: string) => {
     setSelectedOption(type);
+    const scoreMap: Record<string, number> = { A: 1, B: 2, C: 3, D: 4 };
+    const point = scoreMap[type] ?? 1;
 
-    // 선택 애니메이션 후 다음 단계로
     setTimeout(() => {
-      setScores((prev) => ({
-        ...prev,
-        [type]: prev[type as keyof typeof prev] + 1,
-      }));
+      setTotalScore((prev) => prev + point);
 
       if (currentStep < questions.length - 1) {
         setCurrentStep((prev) => prev + 1);
@@ -223,7 +144,7 @@ export default function FashionSurvey() {
   };
 
   const handleReset = () => {
-    setScores({ A: 0, B: 0, C: 0, D: 0 });
+    setTotalScore(0);
     setCurrentStep(0);
     setIsFinished(false);
     setSelectedOption(null);
@@ -234,13 +155,10 @@ export default function FashionSurvey() {
 
   // 결과 화면
   if (isFinished) {
-    const finalType = Object.keys(scores).reduce((a, b) =>
-      scores[a as keyof typeof scores] > scores[b as keyof typeof scores]
-        ? a
-        : b,
-    ) as keyof typeof resultTypes;
-
-    const result = resultTypes[finalType];
+    const result =
+      resultTypes.find(
+        (r) => totalScore >= r.range[0] && totalScore <= r.range[1]
+      ) ?? resultTypes[1];
 
     return (
       <motion.div
@@ -279,6 +197,9 @@ export default function FashionSurvey() {
             </h1>
             <p className="text-xl md:text-2xl main-font font-medium mb-8 text-cream/90">
               {result.subtitle}
+            </p>
+            <p className="text-sm main-font text-cream/60 mb-2">
+              총점 {totalScore}점 / 24점
             </p>
           </motion.div>
 
@@ -460,15 +381,8 @@ export default function FashionSurvey() {
           animate={{ y: 0, opacity: 1 }}
           className="flex justify-between items-center p-6 md:p-8 border-b border-charcoal/20"
         >
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-pink to-accent rounded-full flex items-center justify-center animate-bounce-soft">
-              <span className="text-white text-sm font-bold"></span>
-            </div>
-            <div className="py-1">
-              <h1 className="brand-title text-charcoal bg-gradient-to-r from-pink to-accent bg-clip-text text-transparent">
-                npc.magz
-              </h1>
-            </div>
+          <div className="flex items-center">
+            <img src="/image/logo.png" alt="npc.magz" className="h-6 md:h-8 w-auto" />
           </div>
           <div className="text-right">
             <p className="text-sm font-medium main-font text-charcoal">
