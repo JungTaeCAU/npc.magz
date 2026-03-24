@@ -1,0 +1,16 @@
+/* 커스텀 폰트 정의 */
+@font-face {
+  font-family: "AtoZ";
+  src: url("/fonts/atoz.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Laundry";
+  src: url("/fonts/laundryOTF Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
