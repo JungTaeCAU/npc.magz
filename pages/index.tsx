@@ -11,10 +11,10 @@ const questions = [
     category: "01. 스타일 정체성",
     title: "평생 한 가지 스타일만 입어야 한다면?",
     options: [
-      { type: "A", text: "\"편한 게 GOAT\" → 스트릿 / 트레이닝 깔" },
-      { type: "B", text: "\"사람은 단정이 기본\" → 셔츠+수트 국밥코어" },
-      { type: "C", text: "\"꾸민 듯 안 꾸민 듯\" → 꾸안꾸 장인 모드" },
-      { type: "D", text: "\"남들이랑 겹치면 죽음\" → 빈티지 / 개성 MAX" },
+      { type: "A", text: '"편한 게 GOAT" → 스트릿 / 트레이닝 깔' },
+      { type: "B", text: '"사람은 단정이 기본" → 셔츠+수트 국밥코어' },
+      { type: "C", text: '"꾸민 듯 안 꾸민 듯" → 꾸안꾸 장인 모드' },
+      { type: "D", text: '"남들과는 다른 마이웨이" → 빈티지 / 개성 MAX' },
     ],
   },
   {
@@ -24,8 +24,8 @@ const questions = [
     options: [
       { type: "A", text: "핏이 인생이다 (거울 ON)" },
       { type: "B", text: "소재=인생. 오래 입어야지" },
-      { type: "C", text: "가성비 or die" },
-      { type: "D", text: "브랜드 철학까지 먹고 삼" },
+      { type: "C", text: "합리적인 가격 (가성비가 최우선)" },
+      { type: "D", text: "브랜드 철학 + 감성" },
     ],
   },
   {
@@ -34,9 +34,9 @@ const questions = [
     title: "남 처음 볼 때 어디부터 보세요?",
     options: [
       { type: "A", text: "신발 (이 사람 감 있네)" },
-      { type: "B", text: "액세서리 (디테일)" },
+      { type: "B", text: "액세서리 (디테일에 진심)" },
       { type: "C", text: "상의 핏 / 컬러 (깔끔력)" },
-      { type: "D", text: "가방 / 소품 (숨겨진 변태력(?))" },
+      { type: "D", text: "가방 / 소품 (이거까지 알아보는 사람 인정)" },
     ],
   },
   {
@@ -80,8 +80,7 @@ const resultTypes = [
     range: [6, 12],
     title: "원칙코어 인간 / 클래식 본캐",
     subtitle: "CLASSIC CORE",
-    description:
-      "유행? 필요 없음. 기준 확실하고 자기 방식 있음. 조용한데 쎔.",
+    description: "유행? 필요 없음. 기준 확실하고 자기 방식 있음. 조용한데 쎔.",
     color: "#2C3E50",
     traits: ["원칙", "클래식", "신뢰감", "묵직함"],
   },
@@ -157,7 +156,7 @@ export default function FashionSurvey() {
   if (isFinished) {
     const result =
       resultTypes.find(
-        (r) => totalScore >= r.range[0] && totalScore <= r.range[1]
+        (r) => totalScore >= r.range[0] && totalScore <= r.range[1],
       ) ?? resultTypes[1];
 
     return (
@@ -382,7 +381,11 @@ export default function FashionSurvey() {
           className="flex justify-between items-center p-6 md:p-8 border-b border-charcoal/20"
         >
           <div className="flex items-center">
-            <img src="/image/logo.png" alt="npc.magz" className="h-6 md:h-8 w-auto" />
+            <img
+              src="/image/logo.png"
+              alt="npc.magz"
+              className="h-6 md:h-8 w-auto"
+            />
           </div>
           <div className="text-right">
             <p className="text-sm font-medium main-font text-charcoal">
