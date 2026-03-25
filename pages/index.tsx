@@ -53,11 +53,11 @@ const questions = [
   {
     id: 5,
     category: "05. 퍼스널 컬러",
-    title: "내 퍼스널 컬러는?",
+    title: "내 옷장의 퍼스널 컬러는?",
     options: [
-      { type: "A", text: "무채색 (신뢰감코어)" },
-      { type: "B", text: "따뜻한 색 (인간 햇살 모드)" },
-      { type: "C", text: "차가운 색 (지능캐 vibes)" },
+      { type: "A", text: "무채색 (시크하고 깔끔)" },
+      { type: "B", text: "따뜻한 색 (웜톤, 베이지 or 브라운)" },
+      { type: "C", text: "차가운 색 (네이비, 블루 계열)" },
       { type: "D", text: "비비드 (나 여기 있다!!!!)" },
     ],
   },
