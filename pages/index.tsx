@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Sparkles, RefreshCw } from "lucide-react";
 
-// 문항 데이터 (패션으로 까보는 본캐)
 const questions = [
   {
     id: 1,
@@ -74,7 +73,6 @@ const questions = [
   },
 ];
 
-// 결과 타입별 상세 정보 (점수 기반: 6~12 / 13~18 / 19~24)
 const resultTypes = [
   {
     range: [6, 12],
@@ -104,56 +102,185 @@ const resultTypes = [
   },
 ];
 
+type Step = "intro" | "survey" | "result";
+
 export default function FashionSurvey() {
+  const [step, setStep] = useState<Step>("intro");
+  const [userName, setUserName] = useState("");
+  const [nameInput, setNameInput] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
-  const [isFinished, setIsFinished] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showPrizeForm, setShowPrizeForm] = useState(false);
-  const [prizeForm, setPrizeForm] = useState({
-    name: "",
-    phone: "",
-  });
+  const [prizeForm, setPrizeForm] = useState({ phone: "" });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStart = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (nameInput.trim()) {
+      setUserName(nameInput.trim());
+      setStep("survey");
+    }
+  };
 
   const handleSelect = (type: string) => {
     setSelectedOption(type);
     const scoreMap: Record<string, number> = { A: 1, B: 2, C: 3, D: 4 };
     const point = scoreMap[type] ?? 1;
-
     setTimeout(() => {
       setTotalScore((prev) => prev + point);
-
       if (currentStep < questions.length - 1) {
         setCurrentStep((prev) => prev + 1);
         setSelectedOption(null);
       } else {
-        setIsFinished(true);
+        setStep("result");
       }
     }, 600);
   };
 
-  const handlePrizeSubmit = (e: React.FormEvent) => {
+  const handlePrizeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (prizeForm.name.trim() && prizeForm.phone.trim()) {
-      // 여기서 실제로는 서버에 데이터를 전송할 수 있습니다
-      console.log("Prize form submitted:", prizeForm);
+    if (!prizeForm.phone.trim()) return;
+    setIsLoading(true);
+    try {
+      const result =
+        resultTypes.find(
+          (r) => totalScore >= r.range[0] && totalScore <= r.range[1],
+        ) ?? resultTypes[1];
+      await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userName,
+          phone: prizeForm.phone,
+          resultType: result.subtitle,
+        }),
+      });
       setIsSubmitted(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleReset = () => {
-    setTotalScore(0);
+    setStep("intro");
+    setUserName("");
+    setNameInput("");
     setCurrentStep(0);
-    setIsFinished(false);
+    setTotalScore(0);
     setSelectedOption(null);
     setShowPrizeForm(false);
-    setPrizeForm({ name: "", phone: "" });
+    setPrizeForm({ phone: "" });
     setIsSubmitted(false);
   };
 
+  const Footer = () => (
+    <motion.footer
+      initial={{ y: 50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.8 }}
+      className="p-6 text-center border-t border-charcoal/20"
+    >
+      <div className="flex items-center justify-center space-x-3">
+        <img
+          src="/image/instagram.png"
+          alt="Instagram"
+          className="w-5 h-5 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+        />
+        <p className="text-sm text-charcoal/70 main-font font-medium">
+          npc.magz
+        </p>
+      </div>
+    </motion.footer>
+  );
+
+  // 인트로 화면
+  if (step === "intro") {
+    return (
+      <div className="min-h-screen bg-cream text-charcoal flex flex-col relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 right-10 w-64 h-64 border border-charcoal rotate-45"></div>
+          <div className="absolute bottom-10 left-10 w-32 h-32 border border-charcoal -rotate-12"></div>
+        </div>
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <motion.header
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center p-6 md:p-8 border-b border-charcoal/20"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-pink to-accent rounded-full flex items-center justify-center animate-bounce-soft">
+                <span className="text-white text-sm">✨</span>
+              </div>
+              <div className="py-1">
+                <h1 className="brand-title text-charcoal bg-gradient-to-r from-pink to-accent bg-clip-text text-transparent">
+                  npc.magz
+                </h1>
+              </div>
+            </div>
+          </motion.header>
+
+          <main className="flex-1 flex items-center justify-center p-6 md:p-8">
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="max-w-md w-full text-center"
+            >
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: "spring" }}
+                className="mb-10"
+              >
+                <span className="text-5xl mb-4 block">👗</span>
+                <h2 className="main-font font-bold text-3xl md:text-4xl text-charcoal mb-3 leading-tight">
+                  패션으로 까보는
+                  <br />
+                  나의 본캐
+                </h2>
+                <p className="main-font text-charcoal/60 text-sm mt-4">
+                  6가지 질문으로 알아보는 나의 패션 퍼스널리티
+                </p>
+              </motion.div>
+
+              <motion.form
+                onSubmit={handleStart}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="space-y-4"
+              >
+                <input
+                  type="text"
+                  placeholder="이름을 입력해주세요"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="w-full p-4 border-2 border-charcoal/20 rounded-2xl main-font text-base text-charcoal placeholder-charcoal/40 focus:border-pink focus:outline-none transition-colors bg-white"
+                  required
+                />
+                <motion.button
+                  type="submit"
+                  className="w-full py-4 bg-gradient-to-r from-pink to-accent text-white rounded-2xl main-font font-bold text-base hover:shadow-lg transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  테스트 시작하기 ✨
+                </motion.button>
+              </motion.form>
+            </motion.div>
+          </main>
+          <Footer />
+        </div>
+      </div>
+    );
+  }
+
   // 결과 화면
-  if (isFinished) {
+  if (step === "result") {
     const result =
       resultTypes.find(
         (r) => totalScore >= r.range[0] && totalScore <= r.range[1],
@@ -165,7 +292,6 @@ export default function FashionSurvey() {
         animate={{ opacity: 1 }}
         className="min-h-screen bg-charcoal text-cream flex flex-col items-center justify-center p-6 relative overflow-hidden"
       >
-        {/* 배경 패턴 */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-20 w-32 h-32 border border-cream rotate-45"></div>
           <div className="absolute bottom-20 right-20 w-24 h-24 border border-cream rotate-12"></div>
@@ -176,7 +302,7 @@ export default function FashionSurvey() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-center z-10"
+          className="text-center z-10 w-full max-w-lg"
         >
           <motion.div
             initial={{ scale: 0.8 }}
@@ -185,20 +311,17 @@ export default function FashionSurvey() {
             className="mb-8"
           >
             <Sparkles className="w-8 h-8 mx-auto mb-4 text-pink animate-bounce-soft" />
-            <p className="main-font text-pink mb-2 text-lg">
-              ✨ 당신의 패션 퍼스널리티 ✨
+            <p className="main-font text-pink mb-2 text-base">
+              {userName}님의 패션 퍼스널리티
             </p>
             <h1
-              className="main-font font-bold text-4xl md:text-6xl mb-4"
+              className="main-font font-bold text-4xl md:text-5xl mb-3 leading-tight"
               style={{ color: result.color }}
             >
               {result.title}
             </h1>
-            <p className="text-xl md:text-2xl main-font font-medium mb-8 text-cream/90">
+            <p className="text-lg md:text-xl main-font font-medium mb-6 text-cream/80">
               {result.subtitle}
-            </p>
-            <p className="text-sm main-font text-cream/60 mb-2">
-              총점 {totalScore}점 / 24점
             </p>
           </motion.div>
 
@@ -206,20 +329,19 @@ export default function FashionSurvey() {
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="max-w-lg mx-auto mb-12"
+            className="mb-10"
           >
-            <p className="text-lg leading-relaxed text-cream/90 mb-8">
+            <p className="text-base leading-relaxed text-cream/90 mb-6">
               {result.description}
             </p>
-
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div className="flex flex-wrap justify-center gap-3">
               {result.traits.map((trait, index) => (
                 <motion.span
                   key={trait}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.8 + index * 0.1 }}
-                  className="px-4 py-2 bg-cream/10 border border-cream/20 text-sm font-medium tracking-wide"
+                  className="px-4 py-2 bg-cream/10 border border-cream/20 text-sm main-font tracking-wide"
                 >
                   {trait}
                 </motion.span>
@@ -228,27 +350,25 @@ export default function FashionSurvey() {
           </motion.div>
 
           {/* 경품 추첨 폼 */}
-          {!isSubmitted && (
+          {!isSubmitted ? (
             <motion.div
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="max-w-md mx-auto mb-8"
+              transition={{ delay: 0.9 }}
+              className="mb-8"
             >
               {!showPrizeForm ? (
                 <motion.div
                   className="text-center p-6 bg-gradient-to-r from-pink/10 to-accent/10 rounded-2xl border border-pink/20"
                   whileHover={{ scale: 1.02 }}
                 >
-                  <div className="mb-4">
-                    <span className="text-3xl mb-2 block">🎁</span>
-                    <h3 className="main-font font-bold text-xl text-white mb-2">
-                      경품 추첨 이벤트
-                    </h3>
-                    <p className="text-sm text-white/80 main-font">
-                      정보를 입력하고 특별한 혜택을 받아보세요!
-                    </p>
-                  </div>
+                  <span className="text-3xl mb-2 block">🎁</span>
+                  <h3 className="main-font font-bold text-xl text-white mb-2">
+                    경품 추첨 이벤트
+                  </h3>
+                  <p className="text-sm text-white/80 main-font mb-4">
+                    정보를 입력하고 특별한 혜택을 받아보세요!
+                  </p>
                   <motion.button
                     onClick={() => setShowPrizeForm(true)}
                     className="bg-gradient-to-r from-pink to-accent text-white px-6 py-3 rounded-full main-font font-medium hover:shadow-lg transition-all duration-300"
@@ -274,34 +394,16 @@ export default function FashionSurvey() {
                       정보 입력 후 추첨에 참여하세요
                     </p>
                   </div>
-
                   <div className="space-y-4">
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="이름을 입력해주세요"
-                        value={prizeForm.name}
-                        onChange={(e) =>
-                          setPrizeForm({ ...prizeForm, name: e.target.value })
-                        }
-                        className="w-full p-3 border border-charcoal/20 rounded-lg main-font text-sm text-charcoal placeholder-charcoal/50 focus:border-pink focus:outline-none transition-colors"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="tel"
-                        placeholder="휴대폰 번호를 입력해주세요"
-                        value={prizeForm.phone}
-                        onChange={(e) =>
-                          setPrizeForm({ ...prizeForm, phone: e.target.value })
-                        }
-                        className="w-full p-3 border border-charcoal/20 rounded-lg main-font text-sm text-charcoal placeholder-charcoal/50 focus:border-pink focus:outline-none transition-colors"
-                        required
-                      />
-                    </div>
+                    <input
+                      type="tel"
+                      placeholder="휴대폰 번호를 입력해주세요"
+                      value={prizeForm.phone}
+                      onChange={(e) => setPrizeForm({ phone: e.target.value })}
+                      className="w-full p-3 border border-charcoal/20 rounded-lg main-font text-sm text-charcoal placeholder-charcoal/50 focus:border-pink focus:outline-none transition-colors"
+                      required
+                    />
                   </div>
-
                   <div className="flex space-x-3 mt-6">
                     <motion.button
                       type="button"
@@ -314,30 +416,28 @@ export default function FashionSurvey() {
                     </motion.button>
                     <motion.button
                       type="submit"
-                      className="flex-1 py-3 bg-gradient-to-r from-pink to-accent text-white rounded-lg main-font text-sm font-medium hover:shadow-lg transition-all duration-300"
+                      disabled={isLoading}
+                      className="flex-1 py-3 bg-gradient-to-r from-pink to-accent text-white rounded-lg main-font text-sm font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-60"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      참여하기
+                      {isLoading ? "제출 중..." : "참여하기"}
                     </motion.button>
                   </div>
                 </motion.form>
               )}
             </motion.div>
-          )}
-
-          {/* 제출 완료 메시지 */}
-          {isSubmitted && (
+          ) : (
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="max-w-md mx-auto mb-8 text-center p-6 bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl border border-green-200"
+              className="mb-8 text-center p-6 bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded-2xl border border-green-500/20"
             >
               <span className="text-3xl mb-3 block">🎉</span>
-              <h3 className="main-font font-bold text-lg text-charcoal mb-2">
+              <h3 className="main-font font-bold text-lg text-white mb-2">
                 참여 완료!
               </h3>
-              <p className="text-sm text-charcoal/70 main-font">
+              <p className="text-sm text-cream/70 main-font">
                 경품 추첨에 참여해주셔서 감사합니다.
                 <br />
                 결과는 개별 연락드릴 예정입니다.
@@ -362,30 +462,32 @@ export default function FashionSurvey() {
     );
   }
 
+  // 설문 화면
   const currentQ = questions[currentStep];
   const progress = ((currentStep + 1) / questions.length) * 100;
 
   return (
     <div className="min-h-screen bg-cream text-charcoal relative overflow-hidden">
-      {/* 배경 그래픽 요소 */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 right-10 w-64 h-64 border border-charcoal rotate-45"></div>
         <div className="absolute bottom-10 left-10 w-32 h-32 border border-charcoal -rotate-12"></div>
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* 헤더 */}
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className="flex justify-between items-center p-6 md:p-8 border-b border-charcoal/20"
         >
-          <div className="flex items-center">
-            <img
-              src="/image/logo.png"
-              alt="npc.magz"
-              className="h-6 md:h-8 w-auto"
-            />
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-pink to-accent rounded-full flex items-center justify-center animate-bounce-soft">
+              <span className="text-white text-sm">✨</span>
+            </div>
+            <div className="py-1">
+              <h1 className="brand-title text-charcoal bg-gradient-to-r from-pink to-accent bg-clip-text text-transparent">
+                npc.magz
+              </h1>
+            </div>
           </div>
           <div className="text-right">
             <p className="text-sm font-medium main-font text-charcoal">
@@ -402,7 +504,6 @@ export default function FashionSurvey() {
           </div>
         </motion.header>
 
-        {/* 메인 콘텐츠 */}
         <main className="flex-1 flex items-center justify-center p-6 md:p-8">
           <div className="max-w-2xl w-full">
             <AnimatePresence mode="wait">
@@ -413,7 +514,6 @@ export default function FashionSurvey() {
                 exit={{ x: -50, opacity: 0 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
               >
-                {/* 카테고리 */}
                 <motion.div
                   className="flex items-center space-x-2 mb-6"
                   initial={{ y: 20, opacity: 0 }}
@@ -426,7 +526,6 @@ export default function FashionSurvey() {
                   </p>
                 </motion.div>
 
-                {/* 질문 */}
                 <motion.h2
                   className="main-font font-bold text-2xl md:text-3xl mb-12 whitespace-pre-line leading-relaxed text-charcoal"
                   initial={{ y: 30, opacity: 0 }}
@@ -436,7 +535,6 @@ export default function FashionSurvey() {
                   {currentQ.title}
                 </motion.h2>
 
-                {/* 선택지 */}
                 <div className="space-y-4">
                   {currentQ.options.map((option, idx) => (
                     <motion.button
@@ -455,11 +553,9 @@ export default function FashionSurvey() {
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <span className="block text-base md:text-lg font-medium leading-relaxed main-font">
-                            {option.text}
-                          </span>
-                        </div>
+                        <span className="block text-base md:text-lg font-medium leading-relaxed main-font flex-1">
+                          {option.text}
+                        </span>
                         <ChevronRight
                           className={`w-5 h-5 ml-4 mt-1 transition-all duration-300 ${
                             selectedOption === option.type
@@ -476,24 +572,7 @@ export default function FashionSurvey() {
           </div>
         </main>
 
-        {/* 푸터 */}
-        <motion.footer
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="p-6 md:p-8 text-center border-t border-charcoal/20"
-        >
-          <div className="flex items-center justify-center space-x-3">
-            <img
-              src="/image/instagram.png"
-              alt="Instagram"
-              className="w-5 h-5 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
-            />
-            <p className="text-sm text-charcoal/70 main-font font-medium">
-              npc.magz
-            </p>
-          </div>
-        </motion.footer>
+        <Footer />
       </div>
     </div>
   );
